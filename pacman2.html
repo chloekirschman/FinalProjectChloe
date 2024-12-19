@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pac-Man</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #111;
+        }
+
+        .game-container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            background-color: black;
+            border: 2px solid white;
+            display: grid;
+            grid-template-columns: repeat(20, 20px);
+            grid-template-rows: repeat(20, 20px);
+        }
+
+        .pacman {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: yellow;
+            border-radius: 50%;
+        }
+
+        .pellet {
+            width: 10px;
+            height: 10px;
+            background-color: white;
+            border-radius: 50%;
+            margin: 5px;
+        }
+
+        .wall {
+            background-color: blue;
+        }
+
+        #score {
+            margin-top: 10px;
+            font-size: 1.2rem;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container" id="gameContainer">
+        <!-- Pac-Man and Pellets will be dynamically placed here -->
+    </div>
+    <div id="score">Score: 0</div>
+
+    <script>
+        const gridSize = 20;
+        const gridContainer = document.getElementById('gameContainer');
+        let pacmanPosition = { x: 0, y: 0 };
+        let score = 0;
+
+        // Initialize the grid with walls and pellets
+        function createGameBoard() {
+            for (let row = 0; row < gridSize; row++) {
+                for (let col = 0; col < gridSize; col++) {
+                    const cell = document.createElement('div');
+                    gridContainer.appendChild(cell);
+
+                    // Add walls randomly
+                    if (Math.random() < 0.2) {
+                        cell.classList.add('wall');
+                    }
+
+                    // Add pellets randomly (ensure they're not placed on walls)
+                    else if (Math.random() < 0.1 && !cell.classList.contains('wall')) {
+                        const pellet = document.createElement('div');
+                        pellet.classList.add('pellet');
+                        cell.appendChild(pellet);
+                    }
+                }
+            }
+
+            // Place Pac-Man at the starting position
+            const pacman = document.createElement('div');
+            pacman.classList.add('pacman');
+            gridContainer.appendChild(pacman);
+            pacman.style.top = pacmanPosition.y * 20 + 'px';
+            pacman.style.left = pacmanPosition.x * 20 + 'px';
+        }
+
+        // Move Pac-Man based on key input
+        function movePacman(direction) {
+            const pacman = document.querySelector('.pacman');
+            let newX = pacmanPosition.x;
+            let newY = pacmanPosition.y;
+
+            if (direction === 'up') newY--;
+            if (direction === 'down') newY++;
+            if (direction === 'left') newX--;
+            if (direction === 'right') newX++;
+
+            if (newX >= 0 && newX < gridSize && newY >= 0 && newY < gridSize) {
+                pacmanPosition = { x: newX, y: newY };
+                pacman.style.top = pacmanPosition.y * 20 + 'px';
+                pacman.style.left = pacmanPosition.x * 20 + 'px';
+
+                // Check if Pac-Man eats a pellet
+                const cell = gridContainer.children[newY * gridSize + newX];
+                if (cell && cell.firstChild && cell.firstChild.classList.contains('pellet')) {
+                    cell.removeChild(cell.firstChild); // Remove pellet
+                    score += 10;
+                    document.getElementById('score').textContent = 'Score: ' + score;
+                }
+            }
+        }
+
+        // Set up event listeners for movement
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowUp') movePacman('up');
+            if (e.key === 'ArrowDown') movePacman('down');
+            if (e.key === 'ArrowLeft') movePacman('left');
+            if (e.key === 'ArrowRight') movePacman('right');
+        });
+
+        // Initialize the game
+        createGameBoard();
+    </script>
+</body>
+</html>
